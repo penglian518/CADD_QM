@@ -1,4 +1,6 @@
 # QM calculation related scripts for molecular biophysics and CADD
 
-* g09: Gaussian09
-* nw : NWChem
+* Gaussian09
+* NWChem
+* CP2K
+* MOPACK
