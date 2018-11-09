@@ -3,6 +3,7 @@
 ## Related QM packages
 * Gaussian09
 * NWChem
+* CPMD
 * CP2K
 * Quantum Espresso
 * MOPACK
