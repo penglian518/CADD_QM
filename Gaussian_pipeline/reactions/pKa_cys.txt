@@ -1,0 +1,21 @@
+# pKa I=0.0 Cardiano 2011 10.1021/je200735r
+# 1st protonation
+H+ + Cys_H0 -> Cys_H1_C ; 10.87
+H+ + Cys_H0 -> Cys_H1_N ; 10.87
+H+ + Cys_H0 -> Cys_H1_R ; 10.87
+
+# 2nd protonation
+H+ + Cys_H1_C -> Cys_H2_C ; 8.51
+H+ + Cys_H1_C -> Cys_H2_N ; 8.51
+H+ + Cys_H1_C -> Cys_H2_R ; 8.51
+H+ + Cys_H1_N -> Cys_H2_C ; 8.51
+H+ + Cys_H1_N -> Cys_H2_N ; 8.51
+H+ + Cys_H1_N -> Cys_H2_R ; 8.51
+H+ + Cys_H1_R -> Cys_H2_C ; 8.51
+H+ + Cys_H1_R -> Cys_H2_N ; 8.51
+H+ + Cys_H1_R -> Cys_H2_R ; 8.51
+
+# 3rd protonation
+H+ + Cys_H2_C -> Cys_H3 ; 2.29
+H+ + Cys_H2_N -> Cys_H3 ; 2.29
+H+ + Cys_H2_R -> Cys_H3 ; 2.29
