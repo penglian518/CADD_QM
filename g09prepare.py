@@ -75,6 +75,15 @@ def validate_conf(conf):
     if 'functional' not in newconf.keys():
         print 'WARN: no functional was found, using the default one "B3LYP"'
         newconf['functional'] = 'B3LYP'
+    if newconf['functional'] in ['M05-2X', 'M05-2x', 'm05-2x']:
+        newconf['functional'] = 'M052X'
+    if newconf['functional'] in ['M06-2X', 'M06-2x', 'm06-2x']:
+        newconf['functional'] = 'M062X'
+    if newconf['functional'] in ['M06-HF', 'M06-hf', 'm06-hf']:
+        newconf['functional'] = 'M06HF'
+    if newconf['functional'] in ['M06-L', 'M06-l', 'm06-l']:
+        newconf['functional'] = 'M06L'
+
 
     # check if basis set is exist
     if 'basis_set' not in newconf.keys():
