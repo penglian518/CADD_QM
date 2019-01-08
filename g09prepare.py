@@ -118,6 +118,36 @@ def validate_conf(conf):
         print 'WARN: no Mem was found, using the default one "100MB"'
         newconf['Mem'] = '500MB'
 
+    # check input path
+    if 'path_to_input_xyz' not in newconf.keys():
+        print 'WARN: No path is found to access to the xyz file.'
+        return ''
+
+    # check the ECP settings
+    # read the coordinates
+    mol = pybel.readfile('xyz', newconf['path_to_input_xyz']).next()
+
+    # get the element table
+    ele_Table = pybel.ob.OBElementTable()
+    # get all elements and all metals
+    all_elements = list(set([ele_Table.GetSymbol(i.atomicnum) for i in mol]))
+    all_elements_metal = list(set([ele_Table.GetSymbol(i.atomicnum) for i in mol if i.OBAtom.IsMetal()]))
+
+    if 'Pseudo_elements' not in newconf.keys():
+        newconf['Pseudo_elements'] = []
+
+    # ECP elements and non ECP ele
+    # delete ele in conf but not actually exist in the coordinate file (# here need a deepcopy of the value, not a link?)
+    ecp_ele = [i for i in newconf['Pseudo_elements'] if i in all_elements]
+    newconf['Pseudo_elements'] = ecp_ele
+
+    # if there are metals not in conf, add them to ecp as well
+    metal_not_in_conf = [i for i in all_elements_metal if i not in ecp_ele]
+
+    if len(metal_not_in_conf) > 0:
+        newconf['Pseudo_elements'] += metal_not_in_conf
+        newconf['Pseudo'] = True
+
     return newconf
 
 def lower_and_chrop_blank_braces(string):
@@ -402,11 +432,6 @@ def genCoordinates(conf):
     if len(conf) < 1:
         return ''
 
-    # check input path
-    if 'path_to_input_xyz' not in conf.keys():
-        print 'WARN: No path is found to access to the xyz file.'
-        return ''
-
     # read the coordinates
     mol = pybel.readfile('xyz', conf['path_to_input_xyz']).next()
     #mol.OBMol.SetTotalCharge(conf['Charge'])
@@ -445,14 +470,14 @@ def genECP(conf):
     # check pseudo element
     if 'Pseudo_elements' not in conf.keys():
         print 'WARN: No element is to be applied with pseudo-potential.'
-        return ''
+        #return ''
 
     # generate coordinates first!
     try:
         coor_str = genCoordinates(conf)
-    except:
-        print 'WARN: Failed to generate coordinates for xyz file %s' % conf['path_to_input_xyz']
-        return ''
+    except Exception as e:
+        print 'WARN: Failed to generate coordinates for xyz file %s. The reason is: %s' % (conf['path_to_input_xyz'], e)
+        #return ''
 
     # check coor_str
     if len(coor_str) == 0:
@@ -462,9 +487,12 @@ def genECP(conf):
     # all elements in this input
     all_elements = set([i.split()[0] for i in coor_str.split('\n') if len(i) > 0])
 
-    # ECP elements and non ECP ele
-    # need a deepcopy of the value, not a link!
-    ecp_ele = copy.deepcopy(conf['Pseudo_elements'])
+    try:
+        ecp_ele = copy.deepcopy(conf['Pseudo_elements'])
+    except Exception as e:
+        ecp_ele = []
+        print 'Failed to copy conf["Pseudo_elements"], the reason is: %s' % e
+
     non_ecp_ele = [i for i in all_elements if i not in ecp_ele]
 
 
@@ -476,15 +504,13 @@ def genECP(conf):
 
 
     # generate final ECP str
-    # no ECP element, ecp_ele will only contain ['0']
-    if len(ecp_ele) == 1:
-        print 'WARN: No element is to be applied with pseudo-potential..'
-        return ''
-
-    # all ECP element, non_ecp_ele will contain only ['0']
     if len(non_ecp_ele) == 1:
+        # all ECP element, non_ecp_ele will contain only ['0']
         ecp_str = '%s\n%s\n****\n\n%s\n%s' % (ecp_ele_str, conf['Pseudo_potential'],
                                               ecp_ele_str, conf['Pseudo_potential'])
+    elif len(ecp_ele) == 1:
+        # all non ECP element
+        ecp_str = '%s\n%s\n****' % (non_ecp_ele_str, conf['basis_set'])
     else:
         # have both ECP and non ECP element
         ecp_str = '%s\n%s\n****\n%s\n%s\n****\n\n%s\n%s' % (non_ecp_ele_str, conf['basis_set'],
