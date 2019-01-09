@@ -506,18 +506,22 @@ def genECP(conf):
     # generate final ECP str
     if len(non_ecp_ele) == 1:
         # all ECP element, non_ecp_ele will contain only ['0']
+        pseudo_read = True
         ecp_str = '%s\n%s\n****\n\n%s\n%s' % (ecp_ele_str, conf['Pseudo_potential'],
                                               ecp_ele_str, conf['Pseudo_potential'])
     elif len(ecp_ele) == 1:
-        # all non ECP element
+        # all non ECP element. In this case, should delete "Pseudo=read" in the routine!
+        pseudo_read = False
         ecp_str = '%s\n%s\n****' % (non_ecp_ele_str, conf['basis_set'])
+
     else:
         # have both ECP and non ECP element
+        pseudo_read = True
         ecp_str = '%s\n%s\n****\n%s\n%s\n****\n\n%s\n%s' % (non_ecp_ele_str, conf['basis_set'],
                                                             ecp_ele_str, conf['Pseudo_potential'],
                                                             ecp_ele_str, conf['Pseudo_potential'])
 
-    return ecp_str
+    return ecp_str, pseudo_read
 
 
 
@@ -556,7 +560,9 @@ def genInputFile(conf):
     if 'Start_from_previous' in conf.keys() and conf['Start_from_previous'] == True:
         # if pseudo potential is required
         if 'Pseudo' in conf.keys():
-            ecp_str = genECP(conf)
+            ecp_str, pseudo_read = genECP(conf)
+            if not pseudo_read:
+                routine_str = routine_str.replace('Pseudo=Read', '')
             if 'SCRF_Read' in conf.keys():
                 scrf_read_str = conf['SCRF_ReadConf']
                 # form the final input string
@@ -616,7 +622,10 @@ def genInputFile(conf):
     else:
         # if pseudo potential is required
         if 'Pseudo' in conf.keys():
-            ecp_str = genECP(conf)
+            ecp_str, pseudo_read = genECP(conf)
+            if not pseudo_read:
+                routine_str = routine_str.replace('Pseudo=Read', '')
+
             if 'SCRF_Read' in conf.keys():
                 scrf_read_str = conf['SCRF_ReadConf']
                 # form the final input string
