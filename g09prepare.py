@@ -70,6 +70,13 @@ def validate_conf(conf):
                 #if 'Guess' not in newconf.keys():
                 #    print 'WARN: no Guess was found, using default "Read".'
                 #    newconf['Guess'] = 'Read'
+            if 'preStep' not in newconf.keys():
+                print 'WARN: no preStep was found, using default "1"'
+                newconf['preStep'] = 1
+            if 'preSubstep' not in newconf.keys():
+                print 'WARN: no preSubstep was found, using default "1"'
+                newconf['preSubstep'] = 1
+
 
     # check if functional is exist
     if 'functional' not in newconf.keys():
